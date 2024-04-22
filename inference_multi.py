@@ -111,7 +111,6 @@ def infer(radtts_path, vocoder_path, vocoder_config_path, text_path, speaker,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, help='JSON file config')
-    parser.add_argument('-k', '--config_vocoder', type=str, help='vocoder JSON file config')
     parser.add_argument('-p', '--params', nargs='+', default=[])
     parser.add_argument('-r', '--radtts_path', type=str)
     parser.add_argument('-t', '--text_path', type=str)
