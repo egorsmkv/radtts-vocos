@@ -75,13 +75,24 @@ def infer(radtts_path, text_path, speaker,
         data_config['training_files'],
         **dict((k, v) for k, v in data_config.items() if k not in ignore_keys))
 
-    speaker_id = trainset.get_speaker_id(speaker).cuda()
-    speaker_id_text, speaker_id_attributes = speaker_id, speaker_id
-    if speaker_text is not None:
-        speaker_id_text = trainset.get_speaker_id(speaker_text).cuda()
-    if speaker_attributes is not None:
-        speaker_id_attributes = trainset.get_speaker_id(
-            speaker_attributes).cuda()
+    if cuda_available():
+        speaker_id = trainset.get_speaker_id(speaker).cuda()
+        speaker_id_text, speaker_id_attributes = speaker_id, speaker_id
+
+        if speaker_text is not None:
+            speaker_id_text = trainset.get_speaker_id(speaker_text).cuda()
+
+        if speaker_attributes is not None:
+            speaker_id_attributes = trainset.get_speaker_id(speaker_attributes).cuda()
+    else:
+        speaker_id = trainset.get_speaker_id(speaker)
+        speaker_id_text, speaker_id_attributes = speaker_id, speaker_id
+
+        if speaker_text is not None:
+            speaker_id_text = trainset.get_speaker_id(speaker_text)
+
+        if speaker_attributes is not None:
+            speaker_id_attributes = trainset.get_speaker_id(speaker_attributes)
 
     text_list = lines_to_list(text_path)
 
@@ -90,7 +101,12 @@ def infer(radtts_path, text_path, speaker,
         if text.startswith("#"):
             continue
         print("{}/{}: {}".format(i, len(text_list), text))
-        text = trainset.get_text(text).cuda()[None]
+       
+        if cuda_available():
+            text = trainset.get_text(text).cuda()[None]
+        else:
+            text = trainset.get_text(text)[None]
+
         for take in range(n_takes):
             with amp.autocast(use_amp):
                 with torch.no_grad():
