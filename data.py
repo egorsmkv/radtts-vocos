@@ -66,5 +66,15 @@ class Data(torch.utils.data.Dataset):
             append_space_to_text=append_space_to_text,
             add_bos_eos_to_text=add_bos_eos_to_text)
 
+        self.speaker_map = None
+        if 'speaker_map' in kwargs:
+            self.speaker_map = kwargs['speaker_map']
+
     def get_text(self, text):
         return torch.LongTensor(self.tp.encode_text(text))
+
+    def get_speaker_id(self, speaker):
+        if self.speaker_map is not None and speaker in self.speaker_map:
+            speaker = self.speaker_map[speaker]
+
+        return torch.LongTensor([self.speaker_ids[speaker]])
