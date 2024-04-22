@@ -3,7 +3,7 @@ from glob import glob
 from sys import platform
 
 import torch
-from scipy.io.wavfile import write
+import torchaudio
 
 
 def inference(vocoder, input_mel_folder):
@@ -13,10 +13,10 @@ def inference(vocoder, input_mel_folder):
             x = torch.load(input_mel_file)
             audio = vocoder.decode(x)
 
-            audio = audio.cpu().numpy().astype('int16')
-
             output_file = input_mel_file.replace('.mel','.wav')
-            write(output_file, 22_050, audio)
+
+            torchaudio.save(output_file, audio, 22_050)
+
             print('<<--', output_file)
 
             files_all.append(output_file)
