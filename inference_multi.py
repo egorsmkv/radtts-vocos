@@ -30,7 +30,7 @@ from torch.cuda import is_available as cuda_available
 
 from radtts import RADTTS
 from vocos import Vocos
-from data import Data
+from data_multi import Data
 from common import update_params
 
 

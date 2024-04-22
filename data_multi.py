@@ -40,6 +40,7 @@
 
 import torch
 import torch.utils.data
+import numpy as np
 
 from tts_text_processing.text_processing import TextProcessing
 
@@ -66,5 +67,30 @@ class Data(torch.utils.data.Dataset):
             append_space_to_text=append_space_to_text,
             add_bos_eos_to_text=add_bos_eos_to_text)
 
+        self.speaker_map = None
+        if 'speaker_map' in kwargs:
+            self.speaker_map = kwargs['speaker_map']
+
+        if speaker_ids is None or speaker_ids == '':
+            self.speaker_ids = self.create_speaker_lookup_table(self.data)
+        else:
+            self.speaker_ids = speaker_ids
+
     def get_text(self, text):
         return torch.LongTensor(self.tp.encode_text(text))
+
+    def get_speaker_id(self, speaker):
+        if self.speaker_map is not None and speaker in self.speaker_map:
+            speaker = self.speaker_map[speaker]
+
+        return torch.LongTensor([self.speaker_ids[speaker]])
+
+    def create_speaker_lookup_table(self, data):
+        speaker_ids = np.sort(np.unique([x['speaker'] for x in data]))
+
+        d = {speaker_ids[i]: i for i in range(len(speaker_ids))}
+
+        print("Number of speakers:", len(d))
+        print("Speaker IDS", d)
+
+        return d
