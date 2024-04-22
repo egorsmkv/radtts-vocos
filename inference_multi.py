@@ -26,6 +26,7 @@ import json
 import torch
 import torchaudio
 from torch.cuda import amp
+from torch.cuda import is_available as cuda_available
 
 from radtts import RADTTS
 from vocos import Vocos
@@ -55,13 +56,18 @@ def infer(radtts_path, text_path, speaker,
 
     vocoder = Vocos.from_pretrained("BSC-LT/vocos-mel-22khz")
 
-    radtts = RADTTS(**model_config).cuda()
+    if cuda_available():
+        radtts = RADTTS(**model_config).cuda()
+    else:
+        radtts = RADTTS(**model_config)
+
     radtts.enable_inverse_cache() # cache inverse matrix for 1x1 invertible convs
 
     checkpoint_dict = torch.load(radtts_path, map_location='cpu')
     state_dict = checkpoint_dict['state_dict']
     radtts.load_state_dict(state_dict, strict=False)
     radtts.eval()
+
     print("Loaded checkpoint '{}')" .format(radtts_path))
 
     ignore_keys = ['training_files', 'validation_files']
