@@ -37,17 +37,17 @@
     "data_config": {
         "training_files": {
             "LJS": {
-                "basedir": "filelists/",
+                "basedir": "radtts-vocos/filelists/",
                 "audiodir": "wavs",
-                "filelist": "radtts-vocos/3speakers_ukrainian_train_filelist_dc.txt",
+                "filelist": "3speakers_ukrainian_train_filelist_dc.txt",
                 "lmdbpath": ""
             }
         },
         "validation_files": {
             "LJS": {
-                "basedir": "filelists/",
+                "basedir": "radtts-vocos/filelists/",
                 "audiodir": "wavs",
-                "filelist": "radtts-vocos/3speakers_ukrainian_val_filelist_dc.txt",
+                "filelist": "3speakers_ukrainian_val_filelist_dc.txt",
                 "lmdbpath": ""
             }
         },
