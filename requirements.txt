@@ -3,5 +3,6 @@ numba
 scipy
 librosa==0.9.2
 torch
+lmdb
 unidecode
 git+https://github.com/langtech-bsc/vocos.git@matcha
