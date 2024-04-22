@@ -39,7 +39,7 @@
             "LJS": {
                 "basedir": "filelists/",
                 "audiodir": "wavs",
-                "filelist": "3speakers_ukrainian_train_filelist_dc.txt",
+                "filelist": "radtts-vocos/3speakers_ukrainian_train_filelist_dc.txt",
                 "lmdbpath": ""
             }
         },
@@ -47,7 +47,7 @@
             "LJS": {
                 "basedir": "filelists/",
                 "audiodir": "wavs",
-                "filelist": "3speakers_ukrainian_val_filelist_dc.txt",
+                "filelist": "radtts-vocos/3speakers_ukrainian_val_filelist_dc.txt",
                 "lmdbpath": ""
             }
         },
