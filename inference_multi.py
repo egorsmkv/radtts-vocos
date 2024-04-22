@@ -44,11 +44,11 @@ def lines_to_list(filename):
     return files
 
 
-def infer(radtts_path, vocoder_path, vocoder_config_path, text_path, speaker,
+def infer(radtts_path, text_path, speaker,
           speaker_text, speaker_attributes, sigma, sigma_tkndur, sigma_f0,
           sigma_energy, f0_mean, f0_std, energy_mean, energy_std,
           token_dur_scaling, denoising_strength, n_takes, output_dir, use_amp,
-          plot, seed):
+          seed):
 
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -133,23 +133,25 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=1234, type=int)
     args = parser.parse_args()
 
+    global config
+    global model_config
+
     # Parse configs.  Globals nicer in this case
     with open(args.config) as f:
         data = f.read()
 
-    global config
     config = json.loads(data)
     update_params(config, args.params)
 
     data_config = config["data_config"]
-    global model_config
     model_config = config["model_config"]
 
     torch.backends.cudnn.enabled = True
     torch.backends.cudnn.benchmark = False
-    infer(args.radtts_path, args.vocoder_path, args.config_vocoder,
+
+    infer(args.radtts_path,
           args.text_path, args.speaker, args.speaker_text,
           args.speaker_attributes, args.sigma, args.sigma_tkndur, args.sigma_f0,
           args.sigma_energy, args.f0_mean, args.f0_std, args.energy_mean,
           args.energy_std, args.token_dur_scaling, args.denoising_strength,
-          args.n_takes, args.output_dir, args.use_amp, args.plot, args.seed)
+          args.n_takes, args.output_dir, args.use_amp, args.seed)
