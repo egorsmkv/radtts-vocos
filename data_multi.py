@@ -38,6 +38,10 @@
 #
 ###############################################################################
 
+import os
+
+import lmdb
+
 import torch
 import torch.utils.data
 import numpy as np
@@ -59,6 +63,9 @@ class Data(torch.utils.data.Dataset):
                  lmdb_cache_path="", dur_min=None, dur_max=None,
                  combine_speaker_and_emotion=False, **kwargs):
 
+        self.combine_speaker_and_emotion = combine_speaker_and_emotion
+        self.audio_lmdb_dict = {}
+
         self.tp = TextProcessing(
             symbol_set, cleaner_names, heteronyms_path, phoneme_dict_path,
             p_phoneme=p_phoneme, handle_phoneme=handle_phoneme,
@@ -66,6 +73,8 @@ class Data(torch.utils.data.Dataset):
             prepend_space_to_text=prepend_space_to_text,
             append_space_to_text=append_space_to_text,
             add_bos_eos_to_text=add_bos_eos_to_text)
+        
+        self.data = self.load_data(datasets)
 
         self.speaker_map = None
         if 'speaker_map' in kwargs:
@@ -78,6 +87,39 @@ class Data(torch.utils.data.Dataset):
 
     def get_text(self, text):
         return torch.LongTensor(self.tp.encode_text(text))
+
+    def load_data(self, datasets, split='|'):
+        dataset = []
+
+        for dset_name, dset_dict in datasets.items():
+            folder_path = dset_dict['basedir']
+            audiodir = dset_dict['audiodir']
+            filename = dset_dict['filelist']
+            audio_lmdb_key = None
+            if 'lmdbpath' in dset_dict.keys() and len(dset_dict['lmdbpath']) > 0:
+                self.audio_lmdb_dict[dset_name] = lmdb.open(
+                    dset_dict['lmdbpath'], readonly=True, max_readers=256,
+                    lock=False).begin()
+                audio_lmdb_key = dset_name
+
+            wav_folder_prefix = os.path.join(folder_path, audiodir)
+            filelist_path = os.path.join(folder_path, filename)
+            with open(filelist_path, encoding='utf-8') as f:
+                data = [line.strip().split(split) for line in f]
+
+            for d in data:
+                emotion = 'other' if len(d) == 3 else d[3]
+                duration = -1 if len(d) == 3 else d[4]
+                dataset.append({
+                    'audiopath': os.path.join(wav_folder_prefix, d[0]),
+                    'text': d[1],
+                    'speaker': d[2] + '-' + emotion if self.combine_speaker_and_emotion else d[2],
+                    'emotion': emotion,
+                    'duration': float(duration),
+                    'lmdb_key': audio_lmdb_key
+                })
+
+        return dataset
 
     def get_speaker_id(self, speaker):
         if self.speaker_map is not None and speaker in self.speaker_map:
